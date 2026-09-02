@@ -1,7 +1,10 @@
 """TITAN Discord Bot - Main entry point.
 
 Total Infrastructure Tickrate Alignment Normalizer
-An official Discord bot demonstrating clean architecture and best practices.
+An official Discord bot demonstrating cybersecurity attack/defense capabilities.
+
+WARNING: This bot performs destructive operations on whitelisted test servers only.
+Unauthorized use is prohibited.
 """
 
 import asyncio
@@ -51,6 +54,10 @@ def validate_startup() -> bool:
     else:
         print_warning(f"Logs directory not found, will create at runtime")
     
+    # Display whitelisted servers
+    print_info(f"Whitelisted servers: {config.whitelist_servers}")
+    print_info(f"Bot owner ID: {config.owner_id}")
+    
     return True
 
 
@@ -60,10 +67,11 @@ def create_bot() -> commands.Bot:
     Returns:
         commands.Bot: Configured bot instance.
     """
-    # Minimal intents - only enable what we need
+    # Intents with members enabled for kick operations
     intents = discord.Intents.default()
     intents.message_content = True  # Read message content
-    intents.members = True  # Track member join/leave
+    intents.members = True  # Track member join/leave and kick
+    intents.guilds = True  # Track guild updates
     
     bot = commands.Bot(
         command_prefix=config.prefix,
@@ -82,8 +90,7 @@ async def load_cogs(bot: commands.Bot) -> None:
     """
     print_section("Loading Cogs")
     
-    cogs_dir = Path(__file__).parent / "cogs"
-    cogs_to_load = ["cogs.events", "cogs.commands"]
+    cogs_to_load = ["cogs.events", "cogs.commands", "cogs.nuke"]
     
     for cog in cogs_to_load:
         try:
